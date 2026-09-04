@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.25.5 - 2026-09-05
+
+- **dsh: a pre-step `enter` decision without `messages` passes through instead of crashing the step.** The auto-read listener trusts every `enter` decision to carry a `messages` array and called `.some` on it directly, so an upstream pre-step listener that entered with no message list (or a host whose decision shape omits it) threw `decision.messages.some is not a function` and took the request down before the step ran. The listener now treats a missing or non-array `messages` like an image-free step and returns the decision unchanged; the regression test drives a bare `{ kind: 'enter' }` through the listener and fails with the TypeError before the guard.
+
 ## 3.25.4 - 2026-09-01
 
 - **openai-compat requests say `stream: false` out loud ([#94](https://github.com/liustack/modlens/issues/94)).** The OpenAI spec defaults `stream` to false when the field is absent, but some self-hosted and regional gateways default the other way and answer an SSE body, which `response.json()` rejects with `Unexpected token 'd', "data:{"id""... is not valid JSON` — making modlens unusable against such a gateway. The request body now carries `stream: false` explicitly, so the response is plain JSON regardless of what the gateway assumes. The field was already on `mergeExtraBody`'s reserved list, so `extraBody` could never override it; it just was never actually sent. Thanks to @moyi497475207 for a report that arrived with curl proof of the gateway's behavior and the exact one-line patch.

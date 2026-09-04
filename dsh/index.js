@@ -1381,7 +1381,7 @@ function registerAutoRead(ctx, evidenceCache) {
     if (decision.kind !== 'enter') {
       return decision
     }
-    if (!decision.messages.some((message) => contentHasImage(message.content))) {
+    if (!Array.isArray(decision.messages) || !decision.messages.some((message) => contentHasImage(message.content))) {
       return decision
     }
     const messages = []

@@ -299,6 +299,13 @@ describe('dsh plugin auto-read (phase 2)', () => {
             async () => ({ kind: 'reject' }),
         );
         expect(reject).toEqual({ kind: 'reject' });
+        // A later-added pre-step listener may enter without a messages array;
+        // the auto-read listener must pass that through, not throw on .some.
+        const bareEnter = await handlers['agent/pre-step'](
+            { messages: [imageMessage()] },
+            async () => ({ kind: 'enter' }),
+        );
+        expect(bareEnter).toEqual({ kind: 'enter' });
         const off = await load(false);
         expect(off['agent/pre-step']).toBeUndefined();
         // Default config: no auto-read handler (request-time conversion owns it).
